@@ -7,3 +7,8 @@
 /build
 /captures
 .externalNativeBuild
+.gitignore
+build.gradle
+
+proguard-rules.pro
+
