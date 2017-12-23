@@ -8,8 +8,6 @@ import android.os.Process;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.silencedut.taskscheduler.exception.ErrorBundle;
-
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,16 +58,13 @@ public class TaskScheduler {
     }
 
     private TaskScheduler() {
-        /**
-         *  mParallelExecutor  直接使用AsyncTask的线程，减少新线程创建带来的资源消耗
-         */
+
+        // mParallelExecutor  直接使用AsyncTask的线程，减少新线程创建带来的资源消耗
         mParallelExecutor = AsyncTask.THREAD_POOL_EXECUTOR;
 
         mTimeOutExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE,MAXIMUM_POOL_SIZE,
                 KEEP_ALIVE,TimeUnit.SECONDS,TIMEOUT_POOL_WORK_QUEUE, TIME_OUT_THREAD_FACTORY);
-
     }
-
 
     private static  Handler provideHandler(String handlerName) {
 
@@ -91,17 +86,19 @@ public class TaskScheduler {
         getInstance().mParallelExecutor.execute(task);
     }
 
+
+    /**
+     *执行一个后台任务，如果不需回调
+     * @see #execute(Runnable)
+     **/
+    public static <R> void execute(Task<R> task) {
+        getInstance().mParallelExecutor.execute(task);
+    }
+
     public static void cancelTask(Task task) {
         if(task!=null) {
             task.cancel();
         }
-    }
-
-    /**
-     *执行一个后台任务，可以选择是否有回调
-     **/
-    public static <R> void execute(Task<R> task) {
-        getInstance().mParallelExecutor.execute(task);
     }
 
 
@@ -121,7 +118,7 @@ public class TaskScheduler {
                 } catch (InterruptedException | ExecutionException | TimeoutException e ) {
                     runOnUIThread(() -> {
                         if(!timeOutTask.isCanceled()) {
-                            timeOutTask.error(new ErrorBundle(e, "executeTimeOutTask"));
+                            timeOutTask.onFail(e);
                             timeOutTask.cancel();
                         }
                     });
@@ -133,31 +130,63 @@ public class TaskScheduler {
 
 
     /*
-    **  默认只必须实现doInBackground接口，和Runnable的run等同
+    **  默认只必须实现doInBackground，onSuccess接口
     *   按需实现需要的接口
     **/
 
     public  abstract static class Task<R> implements Runnable {
 
-        public abstract R doInBackground() throws Exception;
-
         private AtomicBoolean mCanceledAtomic = new AtomicBoolean(false);
 
-        public void cancel() {
-            this.mCanceledAtomic.set(true);
+        /**
+         * 异步线程处理任务，在非主线程执行
+         * @return 处理后的结果
+         */
+        public abstract R doInBackground() ;
+
+        /**
+         * 异步线程处理后返回的结果，在主线程执行
+         * @param result 结果
+         */
+        public abstract void onSuccess(R result);
+
+        /**
+         * 异步线程处理出现异常的回调，按需处理，未置成抽象，主线程执行
+         * @param exception 异常
+         */
+        public void onFail(Exception exception){
+
         }
 
+        /**
+         * 任务被取消的回调，主线程执行
+         *
+         */
+        public void onCancel(){
+
+        }
+
+        /**
+         * 将任务标记为取消，没法真正取消正在执行的任务，只是结果不在onSuccess里回调
+         */
+        public void cancel() {
+            this.mCanceledAtomic.set(true);
+            runOnUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    onCancel();
+                }
+            });
+        }
+
+        /**
+         * 任务是已取消
+         * @return 任务是否已被取消
+         */
         public boolean isCanceled() {
             return mCanceledAtomic.get();
         }
 
-        public  void success(R result) {
-
-        }
-
-        public void error(ErrorBundle errorBundle){
-
-        }
 
         @Override
         public void run() {
@@ -169,7 +198,7 @@ public class TaskScheduler {
                     @Override
                     public void run() {
                         if(!isCanceled()){
-                            success(result);
+                            onSuccess(result);
                         }
                     }
                 });
@@ -178,14 +207,13 @@ public class TaskScheduler {
                 runOnUIThread(new Runnable() {
                     @Override
                     public void run() {
-                        error(new ErrorBundle(e, ErrorBundle.TASKERROR));
+                        onFail(e);
                     }
                 });
 
             }
         }
     }
-
 
     public static void runOnUIThread(@NonNull Runnable runnable) {
 
