@@ -6,7 +6,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -20,7 +19,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -44,7 +42,6 @@ public class TaskScheduler {
     private static final int KEEP_ALIVE = 1;
     private static final BlockingQueue<Runnable> TIMEOUT_POOL_WORK_QUEUE =
             new LinkedBlockingQueue<>(128);
-
 
     private static TaskScheduler getInstance() {
         if(sTaskScheduler==null) {
@@ -95,9 +92,13 @@ public class TaskScheduler {
         getInstance().mParallelExecutor.execute(task);
     }
 
-    public static void cancelTask(Task task) {
+    /**
+     * 取消一个任务
+     * @param task 被取消的任务
+     */
+    public static void cancelTask(Task<R> task) {
         if(task!=null) {
-            task.cancel();
+            task.cancel(true);
         }
     }
 
@@ -116,10 +117,13 @@ public class TaskScheduler {
                 try {
                     future.get(timeOutMillis,TimeUnit.MILLISECONDS);
                 } catch (InterruptedException | ExecutionException | TimeoutException e ) {
-                    runOnUIThread(() -> {
-                        if(!timeOutTask.isCanceled()) {
-                            timeOutTask.onFail(e);
-                            timeOutTask.cancel();
+                    runOnUIThread(new Runnable()  {
+                        @Override
+                        public void run() {
+                            if(!timeOutTask.isCanceled()) {
+                                timeOutTask.onFail(e);
+                                timeOutTask.cancel(true);
+                            }
                         }
                     });
                 }
@@ -128,92 +132,6 @@ public class TaskScheduler {
         });
     }
 
-
-    /*
-    **  默认只必须实现doInBackground，onSuccess接口
-    *   按需实现需要的接口
-    **/
-
-    public  abstract static class Task<R> implements Runnable {
-
-        private AtomicBoolean mCanceledAtomic = new AtomicBoolean(false);
-
-        /**
-         * 异步线程处理任务，在非主线程执行
-         * @return 处理后的结果
-         */
-        public abstract R doInBackground() ;
-
-        /**
-         * 异步线程处理后返回的结果，在主线程执行
-         * @param result 结果
-         */
-        public abstract void onSuccess(R result);
-
-        /**
-         * 异步线程处理出现异常的回调，按需处理，未置成抽象，主线程执行
-         * @param exception 异常
-         */
-        public void onFail(Exception exception){
-
-        }
-
-        /**
-         * 任务被取消的回调，主线程执行
-         *
-         */
-        public void onCancel(){
-
-        }
-
-        /**
-         * 将任务标记为取消，没法真正取消正在执行的任务，只是结果不在onSuccess里回调
-         */
-        public void cancel() {
-            this.mCanceledAtomic.set(true);
-            runOnUIThread(new Runnable() {
-                @Override
-                public void run() {
-                    onCancel();
-                }
-            });
-        }
-
-        /**
-         * 任务是已取消
-         * @return 任务是否已被取消
-         */
-        public boolean isCanceled() {
-            return mCanceledAtomic.get();
-        }
-
-
-        @Override
-        public void run() {
-            final R result;
-            try {
-                result = doInBackground();
-
-                runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(!isCanceled()){
-                            onSuccess(result);
-                        }
-                    }
-                });
-            } catch (final Exception e) {
-                Log.e(TAG,"handle background Task  error " +e);
-                runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onFail(e);
-                    }
-                });
-
-            }
-        }
-    }
 
     public static void runOnUIThread(@NonNull Runnable runnable) {
 
