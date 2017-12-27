@@ -98,7 +98,7 @@ public class TaskScheduler {
      */
     public static void cancelTask(Task<R> task) {
         if(task!=null) {
-            task.cancel(true);
+            task.cancel();
         }
     }
 
@@ -122,7 +122,7 @@ public class TaskScheduler {
                         public void run() {
                             if(!timeOutTask.isCanceled()) {
                                 timeOutTask.onFail(e);
-                                timeOutTask.cancel(true);
+                                timeOutTask.cancel();
                             }
                         }
                     });

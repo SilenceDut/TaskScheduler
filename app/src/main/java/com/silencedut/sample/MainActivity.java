@@ -26,11 +26,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mDemoTask = new Task<String>() {
             @Override
-            public String doInBackground() {
+            public String doInBackground()  {
                 final long startMillis = System.currentTimeMillis();
-
-                cut(10000000);
-
+                cut(10000000L);
                 Log.i(TAG,"withResultTask doInBackground, current thread is main ? "+TaskScheduler.isMainThread());
                 return "休眠"+(System.currentTimeMillis() - startMillis)/1000+"秒";
             }
@@ -50,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onCancel() {
                 super.onCancel();
-                Log.i(TAG,"onCancel:");
+                Log.i(TAG,"onCancel");
             }
         };
     }
@@ -73,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TaskScheduler.execute(mDemoTask);
     }
 
-    static void cut(int n){
+    static void cut(long n) {
         double y=1.0;
         for(int i=0;i<=n;i++){
             double π=3*Math.pow(2, i)*y;
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDemoTask.cancel(true);
+        mDemoTask.cancel();
     }
 
     /**
@@ -103,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.cancel_task:
                 Log.i(TAG,"cancelTask");
-                mDemoTask.cancel(true);
+                mDemoTask.cancel();
                 break;
             default:break;
         }
