@@ -68,6 +68,11 @@ public class TaskScheduler {
 
     }
 
+    /**
+     * 获取回调到handlerName线程的handler.一般用于在一个后台线程执行同一种任务，避免线程安全问题。如数据库，文件操作
+     * @param handlerName 线程名
+     * @return 异步任务handler
+     */
     private static  Handler provideHandler(String handlerName) {
 
         if(getInstance().mHandlerMap.containsKey(handlerName)) {
@@ -101,7 +106,7 @@ public class TaskScheduler {
      * 取消一个任务
      * @param task 被取消的任务
      */
-    public static void cancelTask(Task<R> task) {
+    public static void cancelTask(Task task) {
         if(task!=null) {
             task.cancel();
         }

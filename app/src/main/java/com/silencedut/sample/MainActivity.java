@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         mDemoTask = new Task<String>() {
+
             @Override
             public String doInBackground()  {
 
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDemoTask.cancel();
+        TaskScheduler.cancelTask(mDemoTask);
     }
 
     /**
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.cancel_task:
                 Log.i(TAG,"cancelTask");
-                mDemoTask.cancel();
+                TaskScheduler.cancelTask(mDemoTask);
                 break;
             case R.id.timeout_task:
                 Log.i(TAG,"timeOutTask");

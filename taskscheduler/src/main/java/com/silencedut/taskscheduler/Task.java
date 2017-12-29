@@ -49,11 +49,11 @@ public abstract class Task<R> implements Runnable {
 
     /**
      * 将任务标记为取消，没法真正取消正在执行的任务，只是结果不在onSuccess里回调
-     * cancel 不一定能让让人物停止下去和AsyncTask同样道理，可参考
+     * cancel 不一定能让任务停止，和AsyncTask同样道理，可参考
      * {#link http://silencedut.com/2016/07/08/%E5%9F%BA%E4%BA%8E%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC%E7%9A%84AsyncTask%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB%E5%8F%8AAsyncTask%E7%9A%84%E9%BB%91%E6%9A%97%E9%9D%A2/}
      **/
 
-    public void cancel() {
+    void cancel() {
 
         this.mCanceledAtomic.set(true);
 
