@@ -7,7 +7,9 @@ import android.util.Log;
 
 
 /**
- * Created by SilenceDut on 17/04/18.
+ *
+ * @author SilenceDut
+ * @date 17/04/18
  *
  * a safe Handler avoid crash
  */

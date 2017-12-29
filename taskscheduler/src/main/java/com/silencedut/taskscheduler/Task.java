@@ -6,7 +6,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Created by SilenceDut on 2017/12/25 .
+ *
+ * @author SilenceDut
+ * @date 2017/12/25
  */
 
 public abstract class Task<R> implements Runnable {
