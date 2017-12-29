@@ -12,8 +12,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG ="MainActivity" ;
     private Task<String> mDemoTask;
-
-
+    private long mStartMillis;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,16 +20,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         findViewById(R.id.start_task).setOnClickListener(this);
         findViewById(R.id.cancel_task).setOnClickListener(this);
-
+        findViewById(R.id.timeout_task).setOnClickListener(this);
 
 
         mDemoTask = new Task<String>() {
             @Override
             public String doInBackground()  {
-                final long startMillis = System.currentTimeMillis();
-                cut(10000000L);
-                Log.i(TAG,"withResultTask doInBackground, current thread is main ? "+TaskScheduler.isMainThread());
-                return "休眠"+(System.currentTimeMillis() - startMillis)/1000+"秒";
+
+                mStartMillis = System.currentTimeMillis();
+                try {
+                    Thread.sleep(8000);
+                }catch (InterruptedException e) {
+                    Log.i(TAG,""+e);
+                }
+                Log.i(TAG,"withResultTask doInBackground, current thread is ? "+Thread.currentThread().getName());
+                return "休眠"+(System.currentTimeMillis() - mStartMillis)/1000+"秒";
             }
 
             @Override
@@ -42,13 +46,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onFail(Throwable throwable) {
                 super.onFail(throwable);
-                Log.i(TAG,"onFail : "+throwable);
+                Log.i(TAG,"onFail： 休眠 "+(System.currentTimeMillis() - mStartMillis)/1000+"秒");
             }
 
             @Override
             public void onCancel() {
                 super.onCancel();
-                Log.i(TAG,"onCancel");
+                Log.i(TAG,"onCancel： 休眠 "+(System.currentTimeMillis() - mStartMillis)/1000+"秒");
             }
         };
     }
@@ -71,14 +75,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TaskScheduler.execute(mDemoTask);
     }
 
-    static void cut(long n) {
-        double y=1.0;
-        for(int i=0;i<=n;i++){
-            double π=3*Math.pow(2, i)*y;
-            y=Math.sqrt(2-Math.sqrt(4-y*y));
-        }
-
+    /**
+     *  期望结果是休眠3秒，回调到onCancel,代表超时
+     */
+    private void timeOutTask() {
+        TaskScheduler.executeTimeOutTask(3000, mDemoTask);
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -96,12 +100,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(v.getId()) {
             case R.id.start_task:
                 Log.i(TAG,"startTask");
+
                 noResultTask();
                 withResultTask();
                 break;
             case R.id.cancel_task:
                 Log.i(TAG,"cancelTask");
                 mDemoTask.cancel();
+                break;
+            case R.id.timeout_task:
+                Log.i(TAG,"timeOutTask");
+                timeOutTask();
                 break;
             default:break;
         }

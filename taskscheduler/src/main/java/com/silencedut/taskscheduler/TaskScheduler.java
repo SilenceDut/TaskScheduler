@@ -8,13 +8,11 @@ import android.os.Process;
 import android.support.annotation.NonNull;
 
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -30,18 +28,15 @@ public class TaskScheduler {
     private volatile static TaskScheduler sTaskScheduler;
     private static final String TAG = "TaskScheduler";
 
-    private Executor mParallelExecutor ;
+    private ExecutorService mParallelExecutor ;
     private ExecutorService mTimeOutExecutor ;
     private Handler mMainHandler = new SafeDispatchHandler(Looper.getMainLooper());
 
     private Map<String,Handler> mHandlerMap = new ConcurrentHashMap<>();
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-    private static final int CORE_POOL_SIZE = 0;
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
-    private static final int KEEP_ALIVE = 1;
-    private static final BlockingQueue<Runnable> TIMEOUT_POOL_WORK_QUEUE =
-            new LinkedBlockingQueue<>(128);
+    private static final long KEEP_ALIVE = 60L;
 
     private static TaskScheduler getInstance() {
         if(sTaskScheduler==null) {
@@ -56,11 +51,19 @@ public class TaskScheduler {
 
     private TaskScheduler() {
 
-        // mParallelExecutor  直接使用AsyncTask的线程，减少新线程创建带来的资源消耗
-        mParallelExecutor = AsyncTask.THREAD_POOL_EXECUTOR;
+        /*
+          mParallelExecutor  直接使用AsyncTask的线程，减少新线程创建带来的资源消耗
+          */
+        mParallelExecutor = (ExecutorService) AsyncTask.THREAD_POOL_EXECUTOR;
 
-        mTimeOutExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE,MAXIMUM_POOL_SIZE,
-                KEEP_ALIVE,TimeUnit.SECONDS,TIMEOUT_POOL_WORK_QUEUE, TIME_OUT_THREAD_FACTORY);
+        /*
+          没有核心线程的线程池要用 SynchronousQueue 而不是LinkedBlockingQueue，SynchronousQueue是一个只有一个任务的队列，
+          这样每次就会创建非核心线程执行任务,因为线程池任务放入队列的优先级比创建非核心线程优先级大.
+         */
+        mTimeOutExecutor = new ThreadPoolExecutor(0,MAXIMUM_POOL_SIZE,
+                KEEP_ALIVE,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),
+                TIME_OUT_THREAD_FACTORY);
+
     }
 
     private static  Handler provideHandler(String handlerName) {
@@ -111,6 +114,7 @@ public class TaskScheduler {
      * */
     public static <R> void executeTimeOutTask(final long timeOutMillis, final Task<R> timeOutTask) {
         final Future future =getInstance().mTimeOutExecutor.submit(timeOutTask);
+
         getInstance().mTimeOutExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -121,7 +125,6 @@ public class TaskScheduler {
                         @Override
                         public void run() {
                             if(!timeOutTask.isCanceled()) {
-                                timeOutTask.onFail(e);
                                 timeOutTask.cancel();
                             }
                         }
@@ -169,7 +172,7 @@ public class TaskScheduler {
 
         @Override
         public Thread newThread(@NonNull Runnable r) {
-            Thread thread = new Thread(r, "werewolf timeoutThread #" + mCount.getAndIncrement());
+            Thread thread = new Thread(r, "TaskScheduler timeoutThread #" + mCount.getAndIncrement());
             thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
             return thread;
         }

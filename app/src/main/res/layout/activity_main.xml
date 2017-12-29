@@ -15,6 +15,8 @@
         android:layout_margin="50dp"
         android:background="@color/colorPrimary"
         android:gravity="center"
+        android:textColor="#fff"
+        android:layout_gravity="center_vertical"
         />
 
     <TextView
@@ -24,8 +26,21 @@
         android:text="cancel task"
         android:layout_margin="50dp"
         android:background="#FF4081"
-        android:layout_gravity="right"
+        android:layout_gravity="center"
         android:gravity="center"
+        android:textColor="#fff"
+        />
+
+    <TextView
+        android:id="@+id/timeout_task"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="超时任务测试"
+        android:layout_margin="50dp"
+        android:background="#000"
+        android:layout_gravity="right|center_vertical"
+        android:gravity="center"
+        android:textColor="#fff"
         />
 
 </FrameLayout>
