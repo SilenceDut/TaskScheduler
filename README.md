@@ -6,11 +6,11 @@ A concise,practical async library for Android project，already was used in mill
 
 ## About
 
-Android的日常开发中，经常需要处理异步任务，系统提供的Handler和Asynctask实在不方便，一些开源的第三方库由于过于庞大和复杂，例如RxJava，虽然很方便，但RxJava在团队中不同意推广，所以实现了一个简洁、方便、实用的异步库。
+Android的日常开发中，经常需要处理异步任务，系统提供的Handler和Asynctask实在不方便，一些开源的第三方库由于过于庞大和复杂，例如RxJava，虽然很方便，但RxJava在团队中不容易推广，所以实现了一个简洁、方便、实用的异步库。
 
-基本上涵盖了平常开发中常用到的一些需要线程的操作。**该异步库已经用于多个日活过百万线上项目中，暂时没发现什么问题，由于线上项目对崩溃率的要求比较严格，可以规避了执行异步任务或UI操作等带来的崩溃**。
+**该异步库已经用于多个日活过百万线上项目中，暂时没发现什么问题，由于线上项目对崩溃率的要求比较严格，可以规避了执行异步任务或UI操作等带来的崩溃**。这个库因为单独抽离出来，实际线上会有些差别，但核心思想是一样的，相对原来的更简洁一些。
 
-这个库单独抽离出来和实际线上有些差别，但核心思想是一样的，相对原来的更简洁一些。
+这个库用起来会很简单，只提供少量的接口，但功能会很强大，其实目的也就是这，就是利用已经相对完善的jdk或者sdk提供的类进行一定的封装，让异步任务更简洁，没必要提供很多看起来功能很全但实际中基本上用不到的接口，达到一看到接口基本就能看懂该怎么用，避免臃肿。
 
 ## Using
 
@@ -103,11 +103,26 @@ removeHandlerCallback(String threadName,Runnable runnable)
 
 ```
 
-## More
+## Add to library
 
-这个库看起来很简单，就几个方法，其实目的也就是这，就是利用已经相对完善的jdk或者sdk提供的类进行一定的封装，让异步任务更简洁，没必要提供很多看起来功能很全但实际中基本上用不到的接口，达到一看到接口基本就能看懂该怎么用，避免臃肿。
+**Step1.Add it in your root build.gradle at the end of repositories:**
 
-接下来上传到jcenter,能通过gradle引入。
+```java
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
+	}
+}
+```
 
+
+**Step2. Add the dependency:**
+
+```java
+dependencies {
+	compile 'com.github.SilenceDut: TaskScheduler:1.0.0'
+}
+```
 
 
