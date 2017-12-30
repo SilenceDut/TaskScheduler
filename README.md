@@ -1,6 +1,4 @@
-## TaskScheduler 
-
-[![](https://jitpack.io/v/SilenceDut/TaskScheduler.svg)](https://jitpack.io/#SilenceDut/TaskScheduler)
+## TaskScheduler
 
 A concise,practical async library for Android project，already was used in million devices
 
@@ -121,7 +119,7 @@ allprojects {
 
 ```java
 dependencies {
-	compile 'com.github.SilenceDut: TaskScheduler:1.0.0'
+	compile 'com.github.SilenceDut:TaskScheduler:1.0.0'
 }
 ```
 

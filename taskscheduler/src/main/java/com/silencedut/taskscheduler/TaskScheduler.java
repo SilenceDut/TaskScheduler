@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.SynchronousQueue;
@@ -30,7 +31,7 @@ public class TaskScheduler {
     private volatile static TaskScheduler sTaskScheduler;
     private static final String TAG = "TaskScheduler";
 
-    private ExecutorService mParallelExecutor ;
+    private Executor mParallelExecutor ;
     private ExecutorService mTimeOutExecutor ;
     private Handler mMainHandler = new SafeDispatchHandler(Looper.getMainLooper());
 
@@ -56,7 +57,7 @@ public class TaskScheduler {
         /*
           mParallelExecutor  直接使用AsyncTask的线程，减少新线程创建带来的资源消耗
           */
-        mParallelExecutor = (ExecutorService) AsyncTask.THREAD_POOL_EXECUTOR;
+        mParallelExecutor = AsyncTask.THREAD_POOL_EXECUTOR;
 
         /*
           没有核心线程的线程池要用 SynchronousQueue 而不是LinkedBlockingQueue，SynchronousQueue是一个只有一个任务的队列，
