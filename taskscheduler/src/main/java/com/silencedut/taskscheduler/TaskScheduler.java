@@ -74,7 +74,7 @@ public class TaskScheduler {
      * @param handlerName 线程名
      * @return 异步任务handler
      */
-    private static  Handler provideHandler(String handlerName) {
+    public static  Handler provideHandler(String handlerName) {
 
         if(getInstance().mHandlerMap.containsKey(handlerName)) {
             return getInstance().mHandlerMap.get(handlerName);
