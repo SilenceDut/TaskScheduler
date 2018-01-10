@@ -34,12 +34,16 @@ public class SafeDispatchHandler extends Handler{
 
     @Override
     public void dispatchMessage(Message msg) {
-        try {
+        if (BuildConfig.DEBUG) {
             super.dispatchMessage(msg);
-        } catch (Exception e) {
-            Log.d(TAG,"dispatchMessage Exception "+msg+" , "+e);
-        } catch (Error error){
-            Log.d(TAG,"dispatchMessage error "+msg+" , "+error);
+        } else {
+            try {
+                super.dispatchMessage(msg);
+            } catch (Exception e) {
+                Log.d(TAG, "dispatchMessage Exception " + msg + " , " + e);
+            } catch (Error error) {
+                Log.d(TAG, "dispatchMessage error " + msg + " , " + error);
+            }
         }
     }
 }
