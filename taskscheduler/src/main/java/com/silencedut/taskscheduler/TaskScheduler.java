@@ -33,6 +33,7 @@ public class TaskScheduler {
 
     private Executor mParallelExecutor ;
     private ExecutorService mTimeOutExecutor ;
+    private static final String THREAD_MAIN_MAIN = "main";
     private Handler mMainHandler = new SafeDispatchHandler(Looper.getMainLooper());
 
     private Map<String,Handler> mHandlerMap = new ConcurrentHashMap<>();
@@ -66,6 +67,8 @@ public class TaskScheduler {
         mTimeOutExecutor = new ThreadPoolExecutor(0,MAXIMUM_POOL_SIZE,
                 KEEP_ALIVE,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),
                 TIME_OUT_THREAD_FACTORY);
+
+        mHandlerMap.put(THREAD_MAIN_MAIN,mMainHandler);
 
     }
 
@@ -150,9 +153,7 @@ public class TaskScheduler {
     }
 
     public static void removeHandlerCallback(String threadName,Runnable runnable) {
-        if(isMainThread()) {
-            getInstance().mMainHandler.removeCallbacks(runnable);
-        }else if(getInstance().mHandlerMap.get(threadName)!=null){
+        if( getInstance().mHandlerMap.get(threadName)!=null ){
             getInstance().mHandlerMap.get(threadName).removeCallbacks(runnable);
         }
     }
@@ -167,7 +168,7 @@ public class TaskScheduler {
 
 
     public static void removeUICallback(Runnable runnable) {
-        removeHandlerCallback("main",runnable);
+        removeHandlerCallback(THREAD_MAIN_MAIN,runnable);
     }
 
 
