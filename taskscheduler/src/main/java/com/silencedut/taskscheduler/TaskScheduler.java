@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
- * @author SilenceDut
+ * @author liushuai
  * @date 17/04/18
  *
  */
@@ -92,7 +92,7 @@ public class TaskScheduler {
     }
 
     /**
-     * 主线程周期性执行任务，默认立刻执行，之后间隔period执行，不需要时注意取消
+     * 主线程周期性执行任务，默认立刻执行，之后间隔period执行，不需要时注意取消,每次执行时如果有相同token的任务，默认会先取消
      * @param task 执行的任务
      * @param period 周期
      * @param taskToken 任务标识，字符串即可
@@ -116,6 +116,9 @@ public class TaskScheduler {
      * @param period 周期
      */
     public static void scheduleTask(final Runnable task, final long period, String threadName,final String taskToken) {
+
+        stopScheduleTask(threadName,taskToken);
+
         final Handler threadHandler = provideHandler(threadName);
         threadHandler.postAtTime( new Runnable() {
             @Override
