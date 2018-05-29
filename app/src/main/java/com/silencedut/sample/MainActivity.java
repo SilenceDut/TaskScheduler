@@ -1,6 +1,7 @@
 package com.silencedut.sample;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +14,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG ="MainActivity" ;
     private Task<String> mDemoTask;
     private long mStartMillis;
+    private Runnable periodicallyTask;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +23,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.start_task).setOnClickListener(this);
         findViewById(R.id.cancel_task).setOnClickListener(this);
         findViewById(R.id.timeout_task).setOnClickListener(this);
+
+        periodicallyTask = new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG," current thread is ? "+Thread.currentThread().getName()+" uptimeMillis "+ SystemClock.uptimeMillis());
+            }
+        };
 
 
         mDemoTask = new Task<String>() {
@@ -101,13 +110,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(v.getId()) {
             case R.id.start_task:
                 Log.i(TAG,"startTask");
-
-                noResultTask();
-                withResultTask();
+                TaskScheduler.scheduleUITask(periodicallyTask,3000);
+//                noResultTask();
+//                withResultTask();
                 break;
             case R.id.cancel_task:
-                Log.i(TAG,"cancelTask");
-                TaskScheduler.cancelTask(mDemoTask);
+                TaskScheduler.stopScheduleUITask(periodicallyTask);
+//                Log.i(TAG,"cancelTask");
+//                TaskScheduler.cancelTask(mDemoTask);
                 break;
             case R.id.timeout_task:
                 Log.i(TAG,"timeOutTask");

@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 
 import java.util.Map;
@@ -77,7 +78,7 @@ public class TaskScheduler {
      * @param handlerName 线程名
      * @return 异步任务handler
      */
-    public static  Handler provideHandler(String handlerName) {
+    public static Handler provideHandler(String handlerName) {
 
         if(getInstance().mHandlerMap.containsKey(handlerName)) {
             return getInstance().mHandlerMap.get(handlerName);
@@ -88,6 +89,44 @@ public class TaskScheduler {
         Handler handler = new SafeDispatchHandler(handlerThread.getLooper());
         getInstance().mHandlerMap.put(handlerName,handler);
         return handler;
+    }
+
+    /**
+     * 主线程周期性执行任务，默认立刻执行，之后间隔period执行，不需要时注意取消
+     * @param task 执行的任务
+     * @param period 周期
+     */
+    public static void scheduleUITask(final Runnable task, final long period) {
+        scheduleTask(task,period,THREAD_MAIN_MAIN);
+    }
+
+    /**
+     * 取消周期性任务
+     * @param task 取消的任务
+     */
+    public static void stopScheduleUITask(Runnable task) {
+        stopScheduleTask(task,THREAD_MAIN_MAIN);
+    }
+
+
+    /**
+     * 指定线程，默认立刻执行，之后间隔period执行
+     * @param task 执行的任务
+     * @param period 周期
+     */
+    public static void scheduleTask(final Runnable task, final long period, String threadName) {
+        final Handler threadHandler = provideHandler(threadName);
+        threadHandler.postAtTime( new Runnable() {
+            @Override
+            public void run() {
+                task.run();
+                threadHandler.postAtTime(this,task, SystemClock.uptimeMillis() + period);
+            }
+        },task, SystemClock.uptimeMillis());
+    }
+
+    public static void stopScheduleTask(Runnable task, String threadName) {
+        provideHandler(threadName).removeCallbacksAndMessages(task);
     }
 
     /**
