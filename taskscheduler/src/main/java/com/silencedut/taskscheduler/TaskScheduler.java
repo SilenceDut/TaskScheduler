@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
- * @author liushuai
+ * @author SilenceDut
  * @date 17/04/18
  *
  */
@@ -116,7 +116,6 @@ public class TaskScheduler {
      * @param period 周期
      */
     public static void scheduleTask(final Runnable task, final long period, String threadName,final String taskToken) {
-
         stopScheduleTask(threadName,taskToken);
 
         final Handler threadHandler = provideHandler(threadName);
