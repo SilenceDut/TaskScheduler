@@ -91,6 +91,9 @@ TaskScheduler.scheduleUITask(final Runnable task, final long period);
 任意线程
 TaskScheduler.scheduleTask(final Runnable task, final long period, String threadName);
 
+取消任务
+TaskScheduler.stopScheduleTask(Runnable task, String threadName) 
+
 ```
 
 **其他的一些常用方法**
