@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
- * @author SilenceDut
+ * @author liushuai
  * @date 17/04/18
  *
  */
@@ -95,17 +95,18 @@ public class TaskScheduler {
      * 主线程周期性执行任务，默认立刻执行，之后间隔period执行，不需要时注意取消
      * @param task 执行的任务
      * @param period 周期
+     * @param taskToken 任务标识，字符串即可
      */
-    public static void scheduleUITask(final Runnable task, final long period) {
-        scheduleTask(task,period,THREAD_MAIN_MAIN);
+    public static void scheduleUITask(final Runnable task, final long period,String taskToken) {
+        scheduleTask(task,period,THREAD_MAIN_MAIN,taskToken);
     }
 
     /**
      * 取消周期性任务
-     * @param task 取消的任务
+     * @param taskToken 取消的任务 token 字符串即可
      */
-    public static void stopScheduleUITask(Runnable task) {
-        stopScheduleTask(task,THREAD_MAIN_MAIN);
+    public static void stopScheduleUITask(final String taskToken) {
+        stopScheduleTask(THREAD_MAIN_MAIN,taskToken);
     }
 
 
@@ -114,19 +115,19 @@ public class TaskScheduler {
      * @param task 执行的任务
      * @param period 周期
      */
-    public static void scheduleTask(final Runnable task, final long period, String threadName) {
+    public static void scheduleTask(final Runnable task, final long period, String threadName,final String taskToken) {
         final Handler threadHandler = provideHandler(threadName);
         threadHandler.postAtTime( new Runnable() {
             @Override
             public void run() {
                 task.run();
-                threadHandler.postAtTime(this,task, SystemClock.uptimeMillis() + period);
+                threadHandler.postAtTime(this,taskToken, SystemClock.uptimeMillis() + period);
             }
         },task, SystemClock.uptimeMillis());
     }
 
-    public static void stopScheduleTask(Runnable task, String threadName) {
-        provideHandler(threadName).removeCallbacksAndMessages(task);
+    public static void stopScheduleTask(String threadName,final String taskToken) {
+        provideHandler(threadName).removeCallbacksAndMessages(taskToken);
     }
 
     /**

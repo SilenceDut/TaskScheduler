@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG ="MainActivity" ;
     private Task<String> mDemoTask;
     private long mStartMillis;
-    private Runnable periodicallyTask;
+    private static final String SCHEDULE_TOKEN = "Test_schedule";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,13 +23,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.start_task).setOnClickListener(this);
         findViewById(R.id.cancel_task).setOnClickListener(this);
         findViewById(R.id.timeout_task).setOnClickListener(this);
-
-        periodicallyTask = new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG," current thread is ? "+Thread.currentThread().getName()+" uptimeMillis "+ SystemClock.uptimeMillis());
-            }
-        };
 
 
         mDemoTask = new Task<String>() {
@@ -110,12 +103,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(v.getId()) {
             case R.id.start_task:
                 Log.i(TAG,"startTask");
-                TaskScheduler.scheduleUITask(periodicallyTask,3000);
+                TaskScheduler.scheduleUITask(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i(TAG," current thread is ? "+Thread.currentThread().getName()+" uptimeMillis "+ SystemClock.uptimeMillis());
+                    }
+                }, 3000, SCHEDULE_TOKEN);
 //                noResultTask();
 //                withResultTask();
                 break;
             case R.id.cancel_task:
-                TaskScheduler.stopScheduleUITask(periodicallyTask);
+                TaskScheduler.stopScheduleUITask(SCHEDULE_TOKEN);
 //                Log.i(TAG,"cancelTask");
 //                TaskScheduler.cancelTask(mDemoTask);
                 break;
