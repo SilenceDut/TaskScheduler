@@ -1,6 +1,7 @@
 ## TaskScheduler
 
 A concise,practical async library for Android project，already was used in million devices
+[![](https://jitpack.io/v/SilenceDut/TaskScheduler.svg)](https://jitpack.io/#SilenceDut/TaskScheduler)
 
 ## About
 
