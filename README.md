@@ -86,13 +86,13 @@ TaskScheduler.executeTimeOutTask(timeOutMillis,task);
 ```java
 
 主线程
-TaskScheduler.scheduleUITask(final Runnable task, final long period);
+TaskScheduler.scheduleUITask(final Runnable task, final long period，String taskToken);
 
 任意线程
-TaskScheduler.scheduleTask(final Runnable task, final long period, String threadName);
+TaskScheduler.scheduleTask(final Runnable task, final long period, String threadName,String taskToken);
 
 取消任务
-TaskScheduler.stopScheduleTask(Runnable task, String threadName) 
+TaskScheduler.stopScheduleTask( String threadName,String taskToken) 
 
 ```
 
