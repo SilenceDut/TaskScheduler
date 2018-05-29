@@ -79,6 +79,20 @@ TaskScheduler.executeTimeOutTask(timeOutMillis,task);
 
 ```
 
+**周期性任务**
+
+如果任务超时，将会回调到onCancel()
+
+```java
+
+主线程
+TaskScheduler.scheduleUITask(final Runnable task, final long period);
+
+任意线程
+TaskScheduler.scheduleTask(final Runnable task, final long period, String threadName);
+
+```
+
 **其他的一些常用方法**
 
 
