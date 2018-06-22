@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import com.silencedut.taskscheduler.SchedulerTask;
 import com.silencedut.taskscheduler.Task;
 import com.silencedut.taskscheduler.TaskScheduler;
 
@@ -15,6 +16,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Task<String> mDemoTask;
     private long mStartMillis;
     private static final String SCHEDULE_TOKEN = "Test_schedule";
+    private SchedulerTask mSchedulerTask;
+    private int times = 10;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.start_task).setOnClickListener(this);
         findViewById(R.id.cancel_task).setOnClickListener(this);
         findViewById(R.id.timeout_task).setOnClickListener(this);
+
 
 
         mDemoTask = new Task<String>() {
@@ -58,7 +62,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG,"onCancel： 休眠 "+(System.currentTimeMillis() - mStartMillis)/1000+"秒");
             }
         };
+
+
+        mSchedulerTask = new SchedulerTask(1000){
+
+            @Override
+            public void onSchedule() {
+                if(times--<0) {
+                    TaskScheduler.stopScheduleUITask(this);
+                }else {
+                    Log.i(TAG," current thread is ? "+Thread.currentThread().getName()+" uptimeMillis "+ SystemClock.uptimeMillis());
+                }
+
+            }
+        };
     }
+
+
 
     private void noResultTask() {
         TaskScheduler.execute(new Runnable() {
@@ -103,17 +123,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(v.getId()) {
             case R.id.start_task:
                 Log.i(TAG,"startTask");
-                TaskScheduler.scheduleUITask(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i(TAG," current thread is ? "+Thread.currentThread().getName()+" uptimeMillis "+ SystemClock.uptimeMillis());
-                    }
-                }, 3000, SCHEDULE_TOKEN);
+                times=10;
+                TaskScheduler.scheduleTask(mSchedulerTask,"Test");
 //                noResultTask();
 //                withResultTask();
                 break;
             case R.id.cancel_task:
-                TaskScheduler.stopScheduleUITask(SCHEDULE_TOKEN);
+
+                TaskScheduler.stopScheduleTask(mSchedulerTask,"Test");
 //                Log.i(TAG,"cancelTask");
 //                TaskScheduler.cancelTask(mDemoTask);
                 break;

@@ -79,7 +79,6 @@ public class TaskScheduler {
      * @return 异步任务handler
      */
     public static Handler provideHandler(String handlerName) {
-
         if(getInstance().mHandlerMap.containsKey(handlerName)) {
             return getInstance().mHandlerMap.get(handlerName);
         }
@@ -92,45 +91,45 @@ public class TaskScheduler {
     }
 
     /**
-     * 主线程周期性执行任务，默认立刻执行，之后间隔period执行，不需要时注意取消,每次执行时如果有相同token的任务，默认会先取消
+     * 主线程周期性执行任务，默认立刻执行，之后间隔period执行，不需要时注意取消,每次执行时如果有相同的任务，默认会先取消
      * @param task 执行的任务
-     * @param period 周期
-     * @param taskToken 任务标识，字符串即可
      */
-    public static void scheduleUITask(final Runnable task, final long period,String taskToken) {
-        scheduleTask(task,period,THREAD_MAIN_MAIN,taskToken);
+    public static void scheduleUITask(final SchedulerTask task) {
+        scheduleTask(task,THREAD_MAIN_MAIN);
     }
 
     /**
      * 取消周期性任务
-     * @param taskToken 取消的任务 token 字符串即可
+     * @param schedulerTask 任务对象
      */
-    public static void stopScheduleUITask(final String taskToken) {
-        stopScheduleTask(THREAD_MAIN_MAIN,taskToken);
+    public static void stopScheduleUITask(final SchedulerTask schedulerTask) {
+        stopScheduleTask(schedulerTask,THREAD_MAIN_MAIN);
     }
-
 
     /**
      * 指定线程，默认立刻执行，之后间隔period执行
      * @param task 执行的任务
-     * @param period 周期
      */
-    public static void scheduleTask(final Runnable task, final long period, String threadName,final String taskToken) {
-        stopScheduleTask(threadName,taskToken);
-
+    public static void scheduleTask(final SchedulerTask task, String threadName) {
+        stopScheduleTask(task,threadName);
+        task.canceled.compareAndSet(true,false);
         final Handler threadHandler = provideHandler(threadName);
-        threadHandler.postAtTime( new Runnable() {
+        threadHandler.postAtTime(new Runnable() {
             @Override
             public void run() {
-                task.run();
-                threadHandler.postAtTime(this,taskToken, SystemClock.uptimeMillis() + period);
+                if(!task.canceled.get()) {
+                    task.run();
+                    threadHandler.postAtTime(this,task, SystemClock.uptimeMillis() + task.periodSecond);
+                }
             }
         },task, SystemClock.uptimeMillis());
     }
 
-    public static void stopScheduleTask(String threadName,final String taskToken) {
-        provideHandler(threadName).removeCallbacksAndMessages(taskToken);
+    public static void stopScheduleTask(final SchedulerTask task,String threadName) {
+        task.canceled.compareAndSet(false,true);
+        provideHandler(threadName).removeCallbacksAndMessages(task);
     }
+
 
     /**
      *执行一个后台任务，无回调
