@@ -35,7 +35,7 @@ public class TaskScheduler {
     private Executor mParallelExecutor ;
     private ExecutorService mTimeOutExecutor ;
     private static final String THREAD_MAIN_MAIN = "main";
-    private Handler mMainHandler = new SafeDispatchHandler(Looper.getMainLooper());
+    private Handler mMainHandler = new SafeSchedulerHandler(Looper.getMainLooper());
 
     private Map<String,Handler> mHandlerMap = new ConcurrentHashMap<>();
 
@@ -85,7 +85,7 @@ public class TaskScheduler {
 
         HandlerThread handlerThread = new HandlerThread(handlerName,Process.THREAD_PRIORITY_BACKGROUND);
         handlerThread.start();
-        Handler handler = new SafeDispatchHandler(handlerThread.getLooper());
+        Handler handler = new SafeSchedulerHandler(handlerThread.getLooper());
         getInstance().mHandlerMap.put(handlerName,handler);
         return handler;
     }
@@ -194,7 +194,7 @@ public class TaskScheduler {
     }
 
     public static void removeHandlerCallback(String threadName,Runnable runnable) {
-        if( getInstance().mHandlerMap.get(threadName)!=null ){
+        if( getInstance().mHandlerMap.get(threadName)!=null &&  runnable != null){
             getInstance().mHandlerMap.get(threadName).removeCallbacks(runnable);
         }
     }
