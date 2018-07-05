@@ -14,8 +14,8 @@ public abstract class SchedulerTask implements Runnable {
     boolean mainThread = true;
     AtomicBoolean canceled = new AtomicBoolean(false);
 
-    protected SchedulerTask(long periodSecond) {
-        this.periodMillisecond = periodSecond;
+    protected SchedulerTask(long periodMillisecond) {
+        this.periodMillisecond = periodMillisecond;
     }
 
     protected SchedulerTask(long periodMillisecond,boolean mainThread) {
