@@ -1,7 +1,6 @@
 package com.silencedut.taskscheduler;
 
 import android.os.Process;
-import android.support.annotation.NonNull;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +14,7 @@ class ThreadFactory {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
         @Override
-        public Thread newThread(@NonNull Runnable r) {
+        public Thread newThread(Runnable r) {
             Thread thread = new Thread(r, "TaskScheduler timeoutThread #" + mCount.getAndIncrement());
             thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
             return thread;
@@ -26,7 +25,7 @@ class ThreadFactory {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
         @Override
-        public Thread newThread(@NonNull Runnable r) {
+        public Thread newThread( Runnable r) {
             Thread thread = new Thread(r, "TaskScheduler scheduler #" + mCount.getAndIncrement());
             thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
             return thread;
