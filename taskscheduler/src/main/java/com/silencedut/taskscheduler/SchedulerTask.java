@@ -8,11 +8,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class SchedulerTask implements Runnable {
 
-    long periodSecond;
+
+    long startDelayMillisecond;
+    long periodMillisecond;
+    boolean mainThread = true;
     AtomicBoolean canceled = new AtomicBoolean(false);
 
-    public SchedulerTask(long periodSecond) {
-        this.periodSecond = periodSecond;
+    protected SchedulerTask(long periodSecond) {
+        this.periodMillisecond = periodSecond;
+    }
+
+    protected SchedulerTask(long periodSecond,boolean mainThread) {
+        this.periodMillisecond = periodSecond;
+        this.mainThread = mainThread;
+    }
+
+    protected SchedulerTask(long periodSecond,boolean mainThread,long startDelayMillisecond) {
+        this.periodMillisecond = periodSecond;
+        this.mainThread = mainThread;
+        this.startDelayMillisecond = startDelayMillisecond;
     }
 
     public abstract void onSchedule();

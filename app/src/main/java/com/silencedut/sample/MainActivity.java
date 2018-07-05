@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onSchedule() {
-                if(times--<0) {
-                    TaskScheduler.stopScheduleUITask(this);
+                if(times--< 0) {
+                    TaskScheduler.stopScheduleTask(this);
                 }else {
                     Log.i(TAG," current thread is ? "+Thread.currentThread().getName()+" uptimeMillis "+ SystemClock.uptimeMillis());
                 }
@@ -124,13 +124,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.start_task:
                 Log.i(TAG,"startTask");
                 times=10;
-                TaskScheduler.scheduleTask(mSchedulerTask,"Test");
+                TaskScheduler.scheduleTask(mSchedulerTask);
 //                noResultTask();
 //                withResultTask();
                 break;
             case R.id.cancel_task:
 
-                TaskScheduler.stopScheduleTask(mSchedulerTask,"Test");
+                TaskScheduler.stopScheduleTask(mSchedulerTask);
 //                Log.i(TAG,"cancelTask");
 //                TaskScheduler.cancelTask(mDemoTask);
                 break;

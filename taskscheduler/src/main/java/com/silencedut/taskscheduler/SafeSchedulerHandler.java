@@ -16,21 +16,14 @@ import android.util.Log;
 class SafeSchedulerHandler extends Handler{
 
     private static final String TAG = "SafeSchedulerHandler";
-    public SafeSchedulerHandler(Looper looper) {
+     SafeSchedulerHandler(Looper looper) {
         super(looper);
     }
 
-    public SafeSchedulerHandler(Looper looper, Callback callback) {
-        super(looper, callback);
-    }
-
-    public SafeSchedulerHandler() {
+     SafeSchedulerHandler() {
         super();
     }
 
-    public SafeSchedulerHandler(Callback callback) {
-        super(callback);
-    }
 
     @Override
     public void dispatchMessage(Message msg) {

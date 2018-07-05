@@ -5,21 +5,18 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -34,10 +31,8 @@ public class TaskScheduler {
 
     private Executor mParallelExecutor ;
     private ExecutorService mTimeOutExecutor ;
-    private static final String THREAD_MAIN_MAIN = "main";
-    private Handler mMainHandler = new SafeSchedulerHandler(Looper.getMainLooper());
+    private SafeSchedulerHandler mMainHandler = new SafeSchedulerHandler(Looper.getMainLooper());
 
-    private Map<String,Handler> mHandlerMap = new ConcurrentHashMap<>();
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
@@ -66,10 +61,7 @@ public class TaskScheduler {
           这样每次就会创建非核心线程执行任务,因为线程池任务放入队列的优先级比创建非核心线程优先级大.
          */
         mTimeOutExecutor = new ThreadPoolExecutor(0,MAXIMUM_POOL_SIZE,
-                KEEP_ALIVE,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),
-                TIME_OUT_THREAD_FACTORY);
-
-        mHandlerMap.put(THREAD_MAIN_MAIN,mMainHandler);
+                KEEP_ALIVE,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),ThreadFactory.TIME_OUT_THREAD_FACTORY);
 
     }
 
@@ -79,57 +71,46 @@ public class TaskScheduler {
      * @return 异步任务handler
      */
     public static Handler provideHandler(String handlerName) {
-        if(getInstance().mHandlerMap.containsKey(handlerName)) {
-            return getInstance().mHandlerMap.get(handlerName);
-        }
 
         HandlerThread handlerThread = new HandlerThread(handlerName,Process.THREAD_PRIORITY_BACKGROUND);
         handlerThread.start();
-        Handler handler = new SafeSchedulerHandler(handlerThread.getLooper());
-        getInstance().mHandlerMap.put(handlerName,handler);
-        return handler;
+
+        return new SafeSchedulerHandler(handlerThread.getLooper());
     }
 
     /**
      * 主线程周期性执行任务，默认立刻执行，之后间隔period执行，不需要时注意取消,每次执行时如果有相同的任务，默认会先取消
      * @param task 执行的任务
      */
-    public static void scheduleUITask(final SchedulerTask task) {
-        scheduleTask(task,THREAD_MAIN_MAIN);
+    public static void scheduleTask(final SchedulerTask task) {
+
+        task.canceled.compareAndSet(true,false);
+
+        final ScheduledExecutorService service = new ScheduledThreadPoolExecutor(1,ThreadFactory.SCHEDULER_THREAD_FACTORY);
+
+        service.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                if(task.canceled.get()) {
+                    service.shutdownNow();
+                }else {
+                    if(task.mainThread) {
+                        runOnUIThread(task);
+                    }else {
+                        task.run();
+                    }
+                }
+            }
+        }, task.startDelayMillisecond, task.periodMillisecond, TimeUnit.MILLISECONDS);
     }
 
     /**
      * 取消周期性任务
      * @param schedulerTask 任务对象
      */
-    public static void stopScheduleUITask(final SchedulerTask schedulerTask) {
-        stopScheduleTask(schedulerTask,THREAD_MAIN_MAIN);
+    public static void stopScheduleTask(final SchedulerTask schedulerTask) {
+        schedulerTask.canceled.compareAndSet(false,true);
     }
-
-    /**
-     * 指定线程，默认立刻执行，之后间隔period执行
-     * @param task 执行的任务
-     */
-    public static void scheduleTask(final SchedulerTask task, String threadName) {
-        stopScheduleTask(task,threadName);
-        task.canceled.compareAndSet(true,false);
-        final Handler threadHandler = provideHandler(threadName);
-        threadHandler.postAtTime(new Runnable() {
-            @Override
-            public void run() {
-                if(!task.canceled.get()) {
-                    task.run();
-                    threadHandler.postAtTime(this,task, SystemClock.uptimeMillis() + task.periodSecond);
-                }
-            }
-        },task, SystemClock.uptimeMillis());
-    }
-
-    public static void stopScheduleTask(final SchedulerTask task,String threadName) {
-        task.canceled.compareAndSet(false,true);
-        provideHandler(threadName).removeCallbacksAndMessages(task);
-    }
-
 
     /**
      *执行一个后台任务，无回调
@@ -137,7 +118,6 @@ public class TaskScheduler {
     public static void execute(Runnable task) {
         getInstance().mParallelExecutor.execute(task);
     }
-
 
     /**
      *执行一个后台任务，如果不需回调
@@ -156,7 +136,6 @@ public class TaskScheduler {
             task.cancel();
         }
     }
-
 
     /**
      * 使用一个单独的线程池来执行超时任务，避免引起他线程不够用导致超时
@@ -187,17 +166,11 @@ public class TaskScheduler {
         });
     }
 
-
     public static void runOnUIThread(@NonNull Runnable runnable) {
 
         getInstance().mMainHandler.post(runnable);
     }
 
-    public static void removeHandlerCallback(String threadName,Runnable runnable) {
-        if( getInstance().mHandlerMap.get(threadName)!=null &&  runnable != null){
-            getInstance().mHandlerMap.get(threadName).removeCallbacks(runnable);
-        }
-    }
 
     public static Handler getMainHandler() {
         return getInstance().mMainHandler;
@@ -209,24 +182,14 @@ public class TaskScheduler {
 
 
     public static void removeUICallback(Runnable runnable) {
-        removeHandlerCallback(THREAD_MAIN_MAIN,runnable);
+        if(runnable!=null) {
+            getMainHandler().removeCallbacks(runnable);
+        }
     }
-
 
     public static boolean isMainThread() {
         return Thread.currentThread()== getInstance().mMainHandler.getLooper().getThread();
     }
-
-    private static final ThreadFactory TIME_OUT_THREAD_FACTORY = new ThreadFactory() {
-        private final AtomicInteger mCount = new AtomicInteger(1);
-
-        @Override
-        public Thread newThread(@NonNull Runnable r) {
-            Thread thread = new Thread(r, "TaskScheduler timeoutThread #" + mCount.getAndIncrement());
-            thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
-            return thread;
-        }
-    };
 
 
 }
