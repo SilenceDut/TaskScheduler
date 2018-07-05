@@ -18,13 +18,13 @@ public abstract class SchedulerTask implements Runnable {
         this.periodMillisecond = periodSecond;
     }
 
-    protected SchedulerTask(long periodSecond,boolean mainThread) {
-        this.periodMillisecond = periodSecond;
+    protected SchedulerTask(long periodMillisecond,boolean mainThread) {
+        this.periodMillisecond = periodMillisecond;
         this.mainThread = mainThread;
     }
 
-    protected SchedulerTask(long periodSecond,boolean mainThread,long startDelayMillisecond) {
-        this.periodMillisecond = periodSecond;
+    protected SchedulerTask(long periodMillisecond,boolean mainThread,long startDelayMillisecond) {
+        this.periodMillisecond = periodMillisecond;
         this.mainThread = mainThread;
         this.startDelayMillisecond = startDelayMillisecond;
     }

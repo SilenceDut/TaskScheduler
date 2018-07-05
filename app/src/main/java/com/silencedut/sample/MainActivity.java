@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
 
 
-        mSchedulerTask = new SchedulerTask(1000){
+        mSchedulerTask = new SchedulerTask(1000,false,3000){
 
             @Override
             public void onSchedule() {
