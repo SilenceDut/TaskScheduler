@@ -85,14 +85,11 @@ TaskScheduler.executeTimeOutTask(timeOutMillis,task);
 
 ```java
 
-主线程
-TaskScheduler.scheduleUITask(final Runnable task, final long period，String taskToken);
-
-任意线程
-TaskScheduler.scheduleTask(final Runnable task, final long period, String threadName,String taskToken);
+主线程,Io线程可选
+TaskScheduler.scheduleUITask( SchedulerTask task);
 
 取消任务
-TaskScheduler.stopScheduleTask( String threadName,String taskToken) 
+TaskScheduler.stopScheduleTask(SchedulerTask task) 
 
 ```
 
@@ -137,7 +134,7 @@ allprojects {
 
 ```java
 dependencies {
-	compile 'com.github.SilenceDut:TaskScheduler:1.2.5'
+	compile 'com.github.SilenceDut:TaskScheduler:latest'
 }
 ```
 
