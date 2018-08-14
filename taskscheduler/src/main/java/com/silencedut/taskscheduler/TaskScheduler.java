@@ -1,15 +1,16 @@
 package com.silencedut.taskscheduler;
 
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
@@ -36,6 +37,8 @@ public class TaskScheduler {
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
     private static final long KEEP_ALIVE = 60L;
+    private static final BlockingQueue<Runnable> sPoolWorkQueue =
+            new LinkedBlockingQueue<Runnable>();
 
     private static TaskScheduler getInstance() {
         if(sTaskScheduler==null) {
@@ -53,7 +56,8 @@ public class TaskScheduler {
         /*
           mParallelExecutor  直接使用AsyncTask的线程，减少新线程创建带来的资源消耗
           */
-        mParallelExecutor = AsyncTask.THREAD_POOL_EXECUTOR;
+        mParallelExecutor = new ThreadPoolExecutor(CPU_COUNT,MAXIMUM_POOL_SIZE,
+                KEEP_ALIVE,TimeUnit.SECONDS,sPoolWorkQueue,ThreadFactory.TASKSCHEDULER_FACTORY);
 
         /*
           没有核心线程的线程池要用 SynchronousQueue 而不是LinkedBlockingQueue，SynchronousQueue是一个只有一个任务的队列，
