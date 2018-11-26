@@ -43,4 +43,22 @@
         android:textColor="#fff"
         />
 
+    <TextView
+        android:id="@+id/lift_task"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="生命周期任务"
+        android:layout_margin="50dp"
+        android:background="#6f5fff"
+        android:layout_gravity="bottom|center_horizontal"
+        android:gravity="center"
+        android:textColor="#fff"
+        />
+
+    <FrameLayout
+        android:id="@+id/life_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
 </FrameLayout>

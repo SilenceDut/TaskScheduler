@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff555"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Life Fragment"
+        android:textColor="@color/colorPrimary"
+        android:textSize="32sp"
+        android:gravity="center"
+        />
+
+    <Button
+        android:id="@+id/remove_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Remove Fragment"
+        android:textColor="@color/colorAccent"
+        android:textSize="32sp"
+        android:layout_gravity="bottom"
+        />
+
+</FrameLayout>

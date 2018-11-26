@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.start_task).setOnClickListener(this);
         findViewById(R.id.cancel_task).setOnClickListener(this);
         findViewById(R.id.timeout_task).setOnClickListener(this);
+        findViewById(R.id.lift_task).setOnClickListener(this);
 
 
 
@@ -76,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         };
-    }
 
+    }
 
 
     private void noResultTask() {
@@ -137,6 +138,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.timeout_task:
                 Log.i(TAG,"timeOutTask");
                 timeOutTask();
+                break;
+            case R.id.lift_task:
+                Log.i(TAG,"lifeTask");
+                getSupportFragmentManager().beginTransaction().replace(R.id.life_fragment_container,new LifeFragment()).commitAllowingStateLoss();
                 break;
             default:break;
         }

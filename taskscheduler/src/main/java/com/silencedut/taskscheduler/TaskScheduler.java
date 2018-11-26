@@ -1,5 +1,6 @@
 package com.silencedut.taskscheduler;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeoutException;
  *
  */
 public class TaskScheduler {
+
 
     private volatile static TaskScheduler sTaskScheduler;
     private static final String TAG = "TaskScheduler";
@@ -59,6 +61,8 @@ public class TaskScheduler {
         mParallelExecutor = new ThreadPoolExecutor(CPU_COUNT,MAXIMUM_POOL_SIZE,
                 KEEP_ALIVE,TimeUnit.SECONDS,POOL_WORK_QUEUE,ThreadFactory.TASKSCHEDULER_FACTORY);
 
+
+
         /*
           没有核心线程的线程池要用 SynchronousQueue 而不是LinkedBlockingQueue，SynchronousQueue是一个只有一个任务的队列，
           这样每次就会创建非核心线程执行任务,因为线程池任务放入队列的优先级比创建非核心线程优先级大.
@@ -74,6 +78,7 @@ public class TaskScheduler {
      * @return 异步任务handler
      */
     public static Handler provideHandler(String handlerName) {
+
 
         HandlerThread handlerThread = new HandlerThread(handlerName,Process.THREAD_PRIORITY_BACKGROUND);
         handlerThread.start();
@@ -114,6 +119,7 @@ public class TaskScheduler {
     public static void stopScheduleTask(final SchedulerTask schedulerTask) {
         schedulerTask.canceled.compareAndSet(false,true);
     }
+
 
     /**
      *执行一个后台任务，无回调
@@ -169,11 +175,26 @@ public class TaskScheduler {
         });
     }
 
-    public static void runOnUIThread( Runnable runnable) {
+    public static void runOnUIThread(Runnable runnable) {
 
         getInstance().mMainHandler.post(runnable);
     }
 
+    /**
+     * 执行有生命周期的任务
+     */
+    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable) {
+        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,getInstance().mMainHandler,runnable);
+        getInstance().mMainHandler.post(lifecycleRunnableWrapper);
+    }
+
+    /**
+     * 外部提供执行任务的Handler
+     */
+    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,SafeSchedulerHandler anyThreadHandler,Runnable runnable) {
+        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,anyThreadHandler,runnable);
+        anyThreadHandler.post(lifecycleRunnableWrapper);
+    }
 
     public static Handler getMainHandler() {
         return getInstance().mMainHandler;
@@ -181,6 +202,11 @@ public class TaskScheduler {
 
     public static void runOnUIThread(Runnable runnable,long delayed) {
         getInstance().mMainHandler.postDelayed(runnable,delayed);
+    }
+
+    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable,long delayed) {
+        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,getInstance().mMainHandler,runnable);
+        getInstance().mMainHandler.postDelayed(lifecycleRunnableWrapper,delayed);
     }
 
 
