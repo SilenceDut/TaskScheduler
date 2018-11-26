@@ -33,6 +33,7 @@ public class TaskScheduler {
 
     private Executor mParallelExecutor ;
     private ExecutorService mTimeOutExecutor ;
+    private static Handler sIOHandler;
     private SafeSchedulerHandler mMainHandler = new SafeSchedulerHandler(Looper.getMainLooper());
 
 
@@ -70,6 +71,8 @@ public class TaskScheduler {
         mTimeOutExecutor = new ThreadPoolExecutor(0,MAXIMUM_POOL_SIZE,
                 KEEP_ALIVE,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),ThreadFactory.TIME_OUT_THREAD_FACTORY);
 
+        sIOHandler = provideHandler("IoHandler");
+
     }
 
     /**
@@ -84,6 +87,13 @@ public class TaskScheduler {
         handlerThread.start();
 
         return new SafeSchedulerHandler(handlerThread.getLooper());
+    }
+
+    /**
+     * 提供一个公用的异步handler
+     */
+    public static Handler ioHandler() {
+        return sIOHandler;
     }
 
     /**
