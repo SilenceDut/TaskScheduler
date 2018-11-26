@@ -132,6 +132,10 @@ TaskScheduler.stopScheduleTask(SchedulerTask task)
 */
 Handler provideHandler(String handlerName)
 
+ /**
+ * 提供一个公用的异步handler
+ */
+Handler ioHandler()
 
 /**
 *常用的handler的操作
