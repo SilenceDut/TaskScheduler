@@ -11,6 +11,36 @@ Android的日常开发中，经常需要处理异步任务，系统提供的Hand
 
 这个库用起来会很简单，只提供少量的接口，但功能会很强大，其实目的也就是这，就是利用已经相对完善的jdk或者sdk提供的类进行一定的封装，让异步任务更简洁，没必要提供很多看起来功能很全但实际中基本上用不到的接口，达到一看到接口基本就能看懂该怎么用，避免臃肿。
 
+## 重要更新升级
+
+**支持当通过Handler的方式在Activity、Fragment中执行或延迟执行匿名内部类的runnable时，当onDestroy时，runnable自动被移除，极大简化使用,避免内存泄漏**
+
+在Activity里或者Fragment里使用时,在onDestory不需要显示的移除匿名内部类（注意support版本要大于27，官方建议一直用最新的compileSdkVersion和supportVersion）
+
+```java
+
+TaskScheduler.runOnUIThread(this,new Runnable() {
+    @Override
+    public void run() {
+        
+    }
+},5000);
+```
+
+外部传入任意Handler
+
+```java
+TaskScheduler.runLifecycleRunnable(this,anyHandler,,new Runnable() {
+    @Override
+    public void run() {
+        
+    }
+},5000);
+
+
+```
+
+
 ## Using
 
 #### 简单的不需要回调的异步任务

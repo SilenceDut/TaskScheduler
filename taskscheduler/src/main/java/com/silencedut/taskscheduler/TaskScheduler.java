@@ -188,13 +188,6 @@ public class TaskScheduler {
         getInstance().mMainHandler.post(lifecycleRunnableWrapper);
     }
 
-    /**
-     * 外部提供执行任务的Handler
-     */
-    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,SafeSchedulerHandler anyThreadHandler,Runnable runnable) {
-        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,anyThreadHandler,runnable);
-        anyThreadHandler.post(lifecycleRunnableWrapper);
-    }
 
     public static Handler getMainHandler() {
         return getInstance().mMainHandler;
@@ -207,6 +200,19 @@ public class TaskScheduler {
     public static void runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable,long delayed) {
         LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,getInstance().mMainHandler,runnable);
         getInstance().mMainHandler.postDelayed(lifecycleRunnableWrapper,delayed);
+    }
+
+    /**
+     * 外部提供执行任务的Handler
+     */
+    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,SafeSchedulerHandler anyThreadHandler,Runnable runnable) {
+        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,anyThreadHandler,runnable);
+        anyThreadHandler.post(lifecycleRunnableWrapper);
+    }
+
+    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,SafeSchedulerHandler anyThreadHandler,Runnable runnable,long delayed) {
+        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,anyThreadHandler,runnable);
+        anyThreadHandler.postDelayed(lifecycleRunnableWrapper,delayed);
     }
 
 

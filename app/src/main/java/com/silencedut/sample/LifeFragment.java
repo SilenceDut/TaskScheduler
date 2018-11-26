@@ -41,7 +41,7 @@ public class LifeFragment extends Fragment {
         TaskScheduler.runOnUIThread(new Runnable() {
             @Override
             public void run() {
-                removeThis();
+
                 Log.i("LifeFragment","runTask no life");
             }
         },5000);
