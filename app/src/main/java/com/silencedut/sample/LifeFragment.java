@@ -1,5 +1,6 @@
 package com.silencedut.sample;
 
+import android.arch.lifecycle.Lifecycle;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -52,6 +53,26 @@ public class LifeFragment extends Fragment {
                 Log.i("LifeFragment","runTask with life");
             }
         },5000);
+        TaskScheduler.runOnUIThread(this, Lifecycle.Event.ON_STOP, new Runnable() {
+            @Override
+            public void run() {
+                Log.i("LifeFragment","runTask with life on Stop");
+            }
+        },5000);
+
+        TaskScheduler.runLifecycleRunnable(this, TaskScheduler.ioHandler(), new Runnable() {
+            @Override
+            public void run() {
+                Log.i("LifeFragment","io thread runTask with life");
+            }
+        },5000);
+
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     @Override

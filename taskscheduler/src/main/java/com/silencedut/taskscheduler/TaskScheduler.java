@@ -1,5 +1,6 @@
 package com.silencedut.taskscheduler;
 
+import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -185,18 +186,6 @@ public class TaskScheduler {
         });
     }
 
-    public static void runOnUIThread(Runnable runnable) {
-
-        getInstance().mMainHandler.post(runnable);
-    }
-
-    /**
-     * 执行有生命周期的任务
-     */
-    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable) {
-        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,getInstance().mMainHandler,runnable);
-        getInstance().mMainHandler.post(lifecycleRunnableWrapper);
-    }
 
     public static Handler mainHandler() {
         return getInstance().mMainHandler;
@@ -210,26 +199,59 @@ public class TaskScheduler {
         return getInstance().mMainHandler;
     }
 
+    public static void runOnUIThread(Runnable runnable) {
+
+        getInstance().mMainHandler.post(runnable);
+    }
+
+    /**
+     * 执行有生命周期的任务
+     */
+    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable) {
+        LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,getInstance().mMainHandler,Lifecycle.Event.ON_DESTROY,runnable);
+        getInstance().mMainHandler.post(lifecycleRunnableDelegate);
+    }
+
+
+    /**
+     * 执行有生命周期的任务,指定Lifecycle.Event
+     */
+    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Lifecycle.Event targetEvent,Runnable runnable) {
+        LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,getInstance().mMainHandler,targetEvent,runnable);
+        getInstance().mMainHandler.post(lifecycleRunnableDelegate);
+    }
+
     public static void runOnUIThread(Runnable runnable,long delayed) {
         getInstance().mMainHandler.postDelayed(runnable,delayed);
     }
 
     public static void runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable,long delayed) {
-        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,getInstance().mMainHandler,runnable);
-        getInstance().mMainHandler.postDelayed(lifecycleRunnableWrapper,delayed);
+        LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,getInstance().mMainHandler,Lifecycle.Event.ON_DESTROY,runnable);
+        getInstance().mMainHandler.postDelayed(lifecycleRunnableDelegate,delayed);
+    }
+
+    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Lifecycle.Event targetEvent,Runnable runnable,long delayed) {
+        LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,getInstance().mMainHandler,targetEvent,runnable);
+        getInstance().mMainHandler.postDelayed(lifecycleRunnableDelegate,delayed);
     }
 
     /**
      * 外部提供执行任务的Handler
      */
-    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,SafeSchedulerHandler anyThreadHandler,Runnable runnable) {
-        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,anyThreadHandler,runnable);
-        anyThreadHandler.post(lifecycleRunnableWrapper);
+
+
+    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Runnable runnable,long delayed) {
+        LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,anyThreadHandler,Lifecycle.Event.ON_DESTROY,runnable);
+        anyThreadHandler.postDelayed(lifecycleRunnableDelegate,delayed);
     }
 
-    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,SafeSchedulerHandler anyThreadHandler,Runnable runnable,long delayed) {
-        LifecycleRunnableWrapper lifecycleRunnableWrapper = new LifecycleRunnableWrapper(lifecycleOwner,anyThreadHandler,runnable);
-        anyThreadHandler.postDelayed(lifecycleRunnableWrapper,delayed);
+    /**
+     * 外部提供执行任务的Handler,指定移除的Lifecycle.Event
+     */
+
+    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Lifecycle.Event targetEvent,Runnable runnable,long delayed) {
+        LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,anyThreadHandler,targetEvent,runnable);
+        anyThreadHandler.postDelayed(lifecycleRunnableDelegate,delayed);
     }
 
 

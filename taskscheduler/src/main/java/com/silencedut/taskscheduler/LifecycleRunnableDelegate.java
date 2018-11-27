@@ -9,12 +9,13 @@ import android.os.Handler;
  * @author SilenceDut
  * @date 2018/11/26
  */
-public class LifecycleRunnableWrapper implements Runnable {
+public class LifecycleRunnableDelegate implements Runnable {
     private Runnable mOriginRunnable;
     private LifecycleOwner mLifecycleOwner;
     private GenericLifecycleObserver mLifecycleObserver;
 
-    LifecycleRunnableWrapper(LifecycleOwner lifecycleOwner, final Handler handler,final Runnable originRunnable) {
+
+    LifecycleRunnableDelegate(LifecycleOwner lifecycleOwner, final Handler handler, final Lifecycle.Event targetEvent, final Runnable originRunnable) {
         if(originRunnable == null || lifecycleOwner == null) {
             return;
         }
@@ -24,11 +25,11 @@ public class LifecycleRunnableWrapper implements Runnable {
             @Override
             public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
 
-                if(event == Lifecycle.Event.ON_DESTROY) {
+                if(event == targetEvent) {
                     if(mLifecycleOwner!=null ) {
                         mLifecycleOwner.getLifecycle().removeObserver(this);
                     }
-                    handler.removeCallbacks(LifecycleRunnableWrapper.this);
+                    handler.removeCallbacks(LifecycleRunnableDelegate.this);
                 }
             }
         };

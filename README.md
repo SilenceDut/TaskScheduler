@@ -26,6 +26,16 @@ TaskScheduler.runOnUIThread(this,new Runnable() {
     }
 },5000);
 ```
+可指定在特定生命周期移除未执行任务，如onStop
+
+```java
+TaskScheduler.runOnUIThread(this, Lifecycle.Event.ON_STOP, new Runnable() {
+    @Override
+    public void run() {
+        Log.i("LifeFragment","runTask with life on Stop");
+    }
+},5000);
+```
 
 外部传入任意Handler
 
