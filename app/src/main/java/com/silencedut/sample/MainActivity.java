@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.lift_task).setOnClickListener(this);
 
 
-
         mDemoTask = new Task<String>() {
 
             @Override

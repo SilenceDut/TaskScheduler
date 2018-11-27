@@ -33,7 +33,7 @@ public class TaskScheduler {
 
     private Executor mParallelExecutor ;
     private ExecutorService mTimeOutExecutor ;
-    private static Handler sIOHandler;
+    private Handler mIOHandler;
     private SafeSchedulerHandler mMainHandler = new SafeSchedulerHandler(Looper.getMainLooper());
 
 
@@ -71,7 +71,7 @@ public class TaskScheduler {
         mTimeOutExecutor = new ThreadPoolExecutor(0,MAXIMUM_POOL_SIZE,
                 KEEP_ALIVE,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),ThreadFactory.TIME_OUT_THREAD_FACTORY);
 
-        sIOHandler = provideHandler("IoHandler");
+        mIOHandler = provideHandler("IoHandler");
 
     }
 
@@ -93,7 +93,7 @@ public class TaskScheduler {
      * 提供一个公用的异步handler
      */
     public static Handler ioHandler() {
-        return sIOHandler;
+        return getInstance().mIOHandler;
     }
 
     /**
@@ -198,7 +198,14 @@ public class TaskScheduler {
         getInstance().mMainHandler.post(lifecycleRunnableWrapper);
     }
 
+    public static Handler mainHandler() {
+        return getInstance().mMainHandler;
+    }
 
+    /**
+     *use {@link #mainHandler}
+     */
+    @Deprecated
     public static Handler getMainHandler() {
         return getInstance().mMainHandler;
     }
@@ -228,7 +235,7 @@ public class TaskScheduler {
 
     public static void removeUICallback(Runnable runnable) {
         if(runnable!=null) {
-            getMainHandler().removeCallbacks(runnable);
+            mainHandler().removeCallbacks(runnable);
         }
     }
 
