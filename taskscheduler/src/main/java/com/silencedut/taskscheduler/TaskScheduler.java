@@ -239,6 +239,11 @@ public class TaskScheduler {
      * 外部提供执行任务的Handler
      */
 
+    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Runnable runnable) {
+        LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,anyThreadHandler,Lifecycle.Event.ON_DESTROY,runnable);
+        anyThreadHandler.post(lifecycleRunnableDelegate);
+    }
+
 
     public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Runnable runnable,long delayed) {
         LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,anyThreadHandler,Lifecycle.Event.ON_DESTROY,runnable);
@@ -256,9 +261,7 @@ public class TaskScheduler {
 
 
     public static void removeUICallback(Runnable runnable) {
-        if(runnable!=null) {
-            mainHandler().removeCallbacks(runnable);
-        }
+        mainHandler().removeCallbacks(runnable);
     }
 
     public static boolean isMainThread() {
