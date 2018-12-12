@@ -33,7 +33,17 @@ public class LifecycleRunnableDelegate implements Runnable {
                 }
             }
         };
-        mLifecycleOwner.getLifecycle().addObserver(mLifecycleObserver);
+        if(TaskScheduler.isMainThread()) {
+            mLifecycleOwner.getLifecycle().addObserver(mLifecycleObserver);
+        }else {
+            TaskScheduler.runOnUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    mLifecycleOwner.getLifecycle().addObserver(mLifecycleObserver);
+                }
+            });
+        }
+
     }
 
 

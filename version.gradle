@@ -1,0 +1,14 @@
+//lib version
+buildscript {
+    ext {
+        //android
+        _compileSdkVersion = 28
+        _targetSdkVersion = 27
+        _supportVersion = '28.0.0'
+        _minSdkVersion = 14
+        _versionCode = System.getenv("BUILD_NUMBER") as Integer ?: 1
+        lifecycle_extensions = '1.1.1'
+        kotlin_version = '1.2.71'
+
+    }
+}

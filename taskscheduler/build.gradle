@@ -3,11 +3,12 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.silencedut'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion _compileSdkVersion
+
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 26
-        versionCode 1
+        minSdkVersion _minSdkVersion
+        targetSdkVersion _targetSdkVersion
+        versionCode _versionCode
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -38,8 +39,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation ('com.android.support:appcompat-v7:28.0.0' )
+    implementation "com.android.support:appcompat-v7:$_supportVersion"
 
-
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testImplementation 'junit:junit:4.12'
 }

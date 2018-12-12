@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.timeout_task).setOnClickListener(this);
         findViewById(R.id.lift_task).setOnClickListener(this);
 
-
         mDemoTask = new Task<String>() {
 
             @Override
