@@ -178,7 +178,7 @@ allprojects {
 
 ```java
 dependencies {
-	compile 'com.github.SilenceDut:TaskScheduler:latest'
+	compile 'com.github.silencedut:taskscheduler:latest'
 }
 ```
 
