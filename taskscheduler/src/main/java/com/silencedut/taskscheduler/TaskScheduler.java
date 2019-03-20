@@ -9,7 +9,6 @@ import android.os.Process;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,7 +31,7 @@ public class TaskScheduler {
     private volatile static TaskScheduler sTaskScheduler;
     private static final String TAG = "TaskScheduler";
 
-    private Executor mParallelExecutor ;
+    private ExecutorService mParallelExecutor ;
     private ExecutorService mTimeOutExecutor ;
     private Handler mIOHandler;
     private SafeSchedulerHandler mMainHandler = new SafeSchedulerHandler(Looper.getMainLooper());
@@ -57,9 +56,6 @@ public class TaskScheduler {
 
     private TaskScheduler() {
 
-        /*
-          mParallelExecutor  直接使用AsyncTask的线程，减少新线程创建带来的资源消耗
-          */
         mParallelExecutor = new ThreadPoolExecutor(CPU_COUNT,MAXIMUM_POOL_SIZE,
                 KEEP_ALIVE,TimeUnit.SECONDS,POOL_WORK_QUEUE,ThreadFactory.TASKSCHEDULER_FACTORY);
 
@@ -74,6 +70,10 @@ public class TaskScheduler {
 
         mIOHandler = provideHandler("IoHandler");
 
+    }
+
+    public static ExecutorService executorService() {
+        return getInstance().mParallelExecutor;
     }
 
     /**
