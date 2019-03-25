@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
+import android.util.Log;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -35,7 +36,7 @@ public class TaskScheduler {
     private ExecutorService mTimeOutExecutor ;
     private Handler mIOHandler;
     private SafeSchedulerHandler mMainHandler = new SafeSchedulerHandler(Looper.getMainLooper());
-
+    private ILog mILog;
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
@@ -69,6 +70,25 @@ public class TaskScheduler {
                 KEEP_ALIVE,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),ThreadFactory.TIME_OUT_THREAD_FACTORY);
 
         mIOHandler = provideHandler("IoHandler");
+
+    }
+
+    public static void addLogImpl(ILog taskLog) {
+        if(taskLog != null) {
+            getInstance().mILog = taskLog;
+        }else {
+            getInstance().mILog = new ILog() {
+                @Override
+                public void info(String info) {
+                    Log.i(TAG,info);
+                }
+
+                @Override
+                public void error(String error) {
+                    Log.e(TAG,error);
+                }
+            };
+        }
 
     }
 
@@ -136,6 +156,7 @@ public class TaskScheduler {
      *执行一个后台任务，无回调
      * **/
     public static void execute(Runnable task) {
+        getInstance().mILog.info("execute Runnable"+task.toString());
         getInstance().mParallelExecutor.execute(task);
     }
 
@@ -144,6 +165,7 @@ public class TaskScheduler {
      * @see #execute(Runnable)
      **/
     public static <R> void execute(Task<R> task) {
+        getInstance().mILog.info("execute task"+task.toString());
         getInstance().mParallelExecutor.execute(task);
     }
 
