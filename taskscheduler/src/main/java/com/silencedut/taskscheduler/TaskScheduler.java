@@ -36,7 +36,17 @@ public class TaskScheduler {
     private ExecutorService mTimeOutExecutor ;
     private Handler mIOHandler;
     private SafeSchedulerHandler mMainHandler = new SafeSchedulerHandler(Looper.getMainLooper());
-    private ILog mILog;
+    private ILog mILog = new ILog() {
+        @Override
+        public void info(String info) {
+            Log.i(TAG,info);
+        }
+
+        @Override
+        public void error(String error) {
+            Log.e(TAG,error);
+        }
+    };
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
@@ -76,20 +86,7 @@ public class TaskScheduler {
     public static void addLogImpl(ILog taskLog) {
         if(taskLog != null) {
             getInstance().mILog = taskLog;
-        }else {
-            getInstance().mILog = new ILog() {
-                @Override
-                public void info(String info) {
-                    Log.i(TAG,info);
-                }
-
-                @Override
-                public void error(String error) {
-                    Log.e(TAG,error);
-                }
-            };
         }
-
     }
 
     public static ExecutorService executorService() {
