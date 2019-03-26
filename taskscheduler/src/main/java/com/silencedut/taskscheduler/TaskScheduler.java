@@ -49,7 +49,14 @@ public class TaskScheduler {
     };
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-    private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
+    /**
+     *  copy from AsyncTask
+     *  We want at least 2 threads and at most 4 threads in the core pool,
+     *  preferring to have 1 less than the CPU count to avoid saturating
+     * the CPU with background work
+    */
+    private static final int CORE_POOL_SIZE = Math.max(2, Math.min(CPU_COUNT - 1, 4));
+    private static final int MAXIMUM_POOL_SIZE = CORE_POOL_SIZE * 2 + 1;
     private static final long KEEP_ALIVE = 60L;
     private static final BlockingQueue<Runnable> POOL_WORK_QUEUE =
             new LinkedBlockingQueue<>(128);
@@ -66,6 +73,7 @@ public class TaskScheduler {
     }
 
     private TaskScheduler() {
+
 
         mParallelExecutor = new ThreadPoolExecutor(CPU_COUNT,MAXIMUM_POOL_SIZE,
                 KEEP_ALIVE,TimeUnit.SECONDS,POOL_WORK_QUEUE,ThreadFactory.TASKSCHEDULER_FACTORY);
