@@ -234,56 +234,63 @@ public class TaskScheduler {
     /**
      * 执行有生命周期的任务
      */
-    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable) {
+    public static Runnable runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable) {
         LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,getInstance().mMainHandler,Lifecycle.Event.ON_DESTROY,runnable);
         getInstance().mMainHandler.post(lifecycleRunnableDelegate);
+        return lifecycleRunnableDelegate;
     }
 
 
     /**
      * 执行有生命周期的任务,指定Lifecycle.Event
      */
-    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Lifecycle.Event targetEvent,Runnable runnable) {
+    public static Runnable runOnUIThread(LifecycleOwner lifecycleOwner,Lifecycle.Event targetEvent,Runnable runnable) {
         LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,getInstance().mMainHandler,targetEvent,runnable);
         getInstance().mMainHandler.post(lifecycleRunnableDelegate);
+        return lifecycleRunnableDelegate;
     }
 
     public static void runOnUIThread(Runnable runnable,long delayed) {
         getInstance().mMainHandler.postDelayed(runnable,delayed);
     }
 
-    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable,long delayed) {
+    public static Runnable runOnUIThread(LifecycleOwner lifecycleOwner,Runnable runnable,long delayed) {
         LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,getInstance().mMainHandler,Lifecycle.Event.ON_DESTROY,runnable);
         getInstance().mMainHandler.postDelayed(lifecycleRunnableDelegate,delayed);
+        return lifecycleRunnableDelegate;
     }
 
-    public static void runOnUIThread(LifecycleOwner lifecycleOwner,Lifecycle.Event targetEvent,Runnable runnable,long delayed) {
+    public static Runnable runOnUIThread(LifecycleOwner lifecycleOwner,Lifecycle.Event targetEvent,Runnable runnable,long delayed) {
         LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,getInstance().mMainHandler,targetEvent,runnable);
         getInstance().mMainHandler.postDelayed(lifecycleRunnableDelegate,delayed);
+        return lifecycleRunnableDelegate;
     }
 
     /**
      * 外部提供执行任务的Handler
      */
 
-    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Runnable runnable) {
+    public static Runnable runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Runnable runnable) {
         LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,anyThreadHandler,Lifecycle.Event.ON_DESTROY,runnable);
         anyThreadHandler.post(lifecycleRunnableDelegate);
+        return lifecycleRunnableDelegate;
     }
 
 
-    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Runnable runnable,long delayed) {
+    public static Runnable runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Runnable runnable,long delayed) {
         LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,anyThreadHandler,Lifecycle.Event.ON_DESTROY,runnable);
         anyThreadHandler.postDelayed(lifecycleRunnableDelegate,delayed);
+        return lifecycleRunnableDelegate;
     }
 
     /**
      * 外部提供执行任务的Handler,指定移除的Lifecycle.Event
      */
 
-    public static void runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Lifecycle.Event targetEvent,Runnable runnable,long delayed) {
+    public static Runnable runLifecycleRunnable(LifecycleOwner lifecycleOwner,Handler anyThreadHandler,Lifecycle.Event targetEvent,Runnable runnable,long delayed) {
         LifecycleRunnableDelegate lifecycleRunnableDelegate = new LifecycleRunnableDelegate(lifecycleOwner,anyThreadHandler,targetEvent,runnable);
         anyThreadHandler.postDelayed(lifecycleRunnableDelegate,delayed);
+        return lifecycleRunnableDelegate;
     }
 
 
