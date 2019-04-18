@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TaskScheduler.iml" filepath="$PROJECT_DIR$/TaskScheduler.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TaskScheduler.iml" filepath="$PROJECT_DIR$/TaskScheduler.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/taskscheduler/taskscheduler.iml" filepath="$PROJECT_DIR$/taskscheduler/taskscheduler.iml" />
     </modules>
