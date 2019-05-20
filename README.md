@@ -156,7 +156,6 @@ runOnUIThread(Runnable runnable,long delayed)
 
 removeUICallback(@NonNull Runnable runnable)
 
-removeHandlerCallback(String threadName,Runnable runnable)
 
 ```
 
