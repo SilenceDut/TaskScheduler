@@ -212,7 +212,7 @@ public class TaskScheduler {
         });
     }
 
-    @Deprecated
+    
     public static Handler mainHandler() {
         return getInstance().mMainHandler;
     }
